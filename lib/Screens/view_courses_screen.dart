@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../services/classes_service.dart';
 
 class EduversesPage extends StatefulWidget {
   const EduversesPage({super.key});
@@ -8,31 +9,15 @@ class EduversesPage extends StatefulWidget {
 }
 
 class _EduversesPageState extends State<EduversesPage> {
-  int _selectedIndex = 1;
+  late Future<Map<String, dynamic>> _classesData;
 
-  final List<Map<String, String>> _cards = [
-    {
-      'image': 'assets/Mohamed_Farouk.jpg',
-      'left': '2rd Secondary',
-      'title': 'Mohamed Farouk',
-      'subtitle': 'English',
-    },
-    {
-      'image': 'assets/Mustafa_Abdallah.jpg',
-      'left': '3rd Secondary',
-      'title': 'Mustafa Abdallah',
-      'subtitle': 'Physics',
-    },
-    {
-      'image': 'assets/Khaled_Helmy.jpg',
-      'left': '1st Secondary',
-      'title': 'Khaled Helmy',
-      'subtitle': 'Chemistry',
-    },
-    // add more items if needed
-  ];
+  @override
+  void initState() {
+    super.initState();
+    _classesData = ClassesService.getMyClasses();
+  }
 
-  Widget _buildCard(Map<String, String> item) {
+  Widget _buildCard(Map<String, dynamic> item) {
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -46,29 +31,9 @@ class _EduversesPageState extends State<EduversesPage> {
             borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
             child: AspectRatio(
               aspectRatio: 16 / 9,
-              child: Image.network(
-                item['image']!,
+              child: Image.asset(
+                'assets/Mohamed_Farouk.jpg',
                 fit: BoxFit.cover,
-                loadingBuilder: (context, child, progress) {
-                  if (progress == null) return child;
-                  return Container(
-                    color: Colors.grey.shade100,
-                    child: const Center(
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    ),
-                  );
-                },
-                errorBuilder:
-                    (_, __, ___) => Container(
-                      color: Colors.grey.shade100,
-                      child: const Center(
-                        child: Icon(
-                          Icons.image_not_supported,
-                          size: 48,
-                          color: Colors.grey,
-                        ),
-                      ),
-                    ),
               ),
             ),
           ),
@@ -83,13 +48,13 @@ class _EduversesPageState extends State<EduversesPage> {
                       .start, // ensure inner column is left-aligned
               children: [
                 Text(
-                  item['left'] ?? '',
+                  item['className'] ?? '',
                   textAlign: TextAlign.left,
-                  style: TextStyle(fontSize: 12, color: Colors.black),
+                  style: const TextStyle(fontSize: 12, color: Colors.black),
                 ),
                 const SizedBox(height: 6),
                 Text(
-                  item['title'] ?? '',
+                  item['instructorName'] ?? '',
                   textAlign: TextAlign.left,
                   style: const TextStyle(
                     fontSize: 18,
@@ -98,51 +63,15 @@ class _EduversesPageState extends State<EduversesPage> {
                 ),
                 const SizedBox(height: 6),
                 Text(
-                  item['subtitle'] ?? '',
+                  item['classDescription'] ?? '',
                   textAlign: TextAlign.left,
                   style: const TextStyle(fontSize: 13, color: Colors.black54),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ],
             ),
           ),
-        ],
-      ),
-    );
-  }
-
-  /*Widget _bottomNav() {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        border: Border(top: BorderSide(color: Colors.grey.shade300)),
-        boxShadow: [
-          BoxShadow(color: Colors.black.withOpacity(0.03), blurRadius: 6),
-        ],
-      ),
-      padding: const EdgeInsets.symmetric(vertical: 8),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: [
-          _navItem(Icons.feed_outlined, 'Feed', 0),
-          _navItem(Icons.book_outlined, 'Eduverses', 1),
-          _navItem(Icons.person_outline, 'Profile', 2),
-          _navItem(Icons.settings_outlined, 'Settings', 3),
-        ],
-      ),
-    );
-  }*/
-
-  Widget _navItem(IconData icon, String label, int index) {
-    final selected = _selectedIndex == index;
-    final color = selected ? Colors.purple.shade700 : Colors.grey.shade600;
-    return GestureDetector(
-      onTap: () => setState(() => _selectedIndex = index),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, color: color),
-          const SizedBox(height: 4),
-          Text(label, style: TextStyle(fontSize: 12, color: color)),
         ],
       ),
     );
@@ -197,10 +126,104 @@ class _EduversesPageState extends State<EduversesPage> {
 
             // list
             Expanded(
-              child: ListView.builder(
-                padding: const EdgeInsets.only(bottom: 8),
-                itemCount: _cards.length,
-                itemBuilder: (context, i) => _buildCard(_cards[i]),
+              child: FutureBuilder<Map<String, dynamic>>(
+                future: _classesData,
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return Center(
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2.5,
+                        valueColor: AlwaysStoppedAnimation<Color>(
+                          Colors.blue.shade700,
+                        ),
+                      ),
+                    );
+                  } else if (snapshot.hasError) {
+                    return Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.error_outline,
+                            size: 48,
+                            color: Colors.red.shade400,
+                          ),
+                          const SizedBox(height: 16),
+                          Text(
+                            'Error loading classes',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w700,
+                              color: Colors.red.shade700,
+                            ),
+                          ),
+                          const SizedBox(height: 24),
+                          ElevatedButton(
+                            onPressed: () {
+                              setState(() {
+                                _classesData = ClassesService.getMyClasses();
+                              });
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFF1A3C7B),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                            ),
+                            child: const Text(
+                              'Retry',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  } else if (!snapshot.hasData ||
+                      snapshot.data!['success'] != true) {
+                    return Center(
+                      child: Text(
+                        snapshot.data?['message'] ?? 'Failed to load classes',
+                        style: const TextStyle(color: Colors.black54),
+                      ),
+                    );
+                  } else {
+                    final List<Map<String, dynamic>> classes =
+                        (snapshot.data!['data'] as List).cast();
+
+                    if (classes.isEmpty) {
+                      return Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.menu_book_outlined,
+                              size: 48,
+                              color: Colors.grey.shade400,
+                            ),
+                            const SizedBox(height: 16),
+                            const Text(
+                              'No Classes Yet',
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.w700,
+                                color: Colors.black54,
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    }
+
+                    return ListView.builder(
+                      padding: const EdgeInsets.only(bottom: 8),
+                      itemCount: classes.length,
+                      itemBuilder: (context, i) => _buildCard(classes[i]),
+                    );
+                  }
+                },
               ),
             ),
           ],

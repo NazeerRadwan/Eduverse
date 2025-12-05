@@ -277,7 +277,9 @@ class _JoinEduverseState extends State<JoinEduverse> {
                       width: double.infinity,
                       height: 48,
                       child: OutlinedButton(
-                        onPressed: () {},
+                        onPressed: () {
+                          Navigator.of(context).pushNamed('/view_courses');
+                        },
                         style: OutlinedButton.styleFrom(
                           side: const BorderSide(
                             color: Color(0xFF1A3C7B),
