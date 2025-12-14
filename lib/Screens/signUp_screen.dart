@@ -15,7 +15,7 @@ class _SignUpPageState extends State<SignUpPage> {
   final _emailCtl = TextEditingController();
   final _passCtl = TextEditingController();
   final _confirmPassCtl = TextEditingController();
-  
+
   bool _obscurePass = true;
   bool _obscureConfirm = true;
   String _role = 'Student';
@@ -86,7 +86,7 @@ class _SignUpPageState extends State<SignUpPage> {
           style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.w600,
-            color: selected ? Colors.blue.shade800 : Colors.black87,
+            color: selected ? Color(0xFF002E8A) : Colors.black87,
           ),
         ),
       ),
@@ -121,7 +121,9 @@ class _SignUpPageState extends State<SignUpPage> {
     );
 
     if (validation['valid'] != true) {
-      setState(() => _errorMessage = validation['message'] ?? 'Validation failed');
+      setState(
+        () => _errorMessage = validation['message'] ?? 'Validation failed',
+      );
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -169,7 +171,10 @@ class _SignUpPageState extends State<SignUpPage> {
                     border: Border.all(color: const Color(0xFFE6E9EC)),
                   ),
                   child: IconButton(
-                    icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 18),
+                    icon: const Icon(
+                      Icons.arrow_back_ios_new_rounded,
+                      size: 18,
+                    ),
                     onPressed: () => Navigator.maybePop(context),
                   ),
                 ),
@@ -243,8 +248,8 @@ class _SignUpPageState extends State<SignUpPage> {
                           ? Icons.visibility_off_outlined
                           : Icons.visibility_outlined,
                     ),
-                    onPressed: () =>
-                        setState(() => _obscurePass = !_obscurePass),
+                    onPressed:
+                        () => setState(() => _obscurePass = !_obscurePass),
                   ),
                 ),
               ),
@@ -260,8 +265,9 @@ class _SignUpPageState extends State<SignUpPage> {
                           ? Icons.visibility_off_outlined
                           : Icons.visibility_outlined,
                     ),
-                    onPressed: () =>
-                        setState(() => _obscureConfirm = !_obscureConfirm),
+                    onPressed:
+                        () =>
+                            setState(() => _obscureConfirm = !_obscureConfirm),
                   ),
                 ),
               ),
@@ -272,7 +278,7 @@ class _SignUpPageState extends State<SignUpPage> {
                   'Join as',
                   style: TextStyle(
                     fontSize: 16,
-                    color: Colors.blue.shade800,
+                    color: Color(0xFF002E8A),
                     fontWeight: FontWeight.w700,
                   ),
                 ),
@@ -318,9 +324,20 @@ class _SignUpPageState extends State<SignUpPage> {
               const SizedBox(height: 12),
               TextButton(
                 onPressed: () => Navigator.pushNamed(context, '/signin'),
-                child: const Text(
-                  'Already have an account? Log in',
-                  style: TextStyle(color: Colors.black54),
+                child: Row(
+                  children: [
+                    const Text(
+                      'Already have an account? ',
+                      style: TextStyle(color: Colors.black54),
+                    ),
+                    Text(
+                      'Log in',
+                      style: TextStyle(
+                        color: Color(0xFF002E8A),
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
                 ),
               ),
               const SizedBox(height: 20),
