@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../services/classes_service.dart';
+import 'view_exam_screen.dart';
 
 class EduversesPage extends StatefulWidget {
   const EduversesPage({super.key});
@@ -18,61 +19,71 @@ class _EduversesPageState extends State<EduversesPage> {
   }
 
   Widget _buildCard(Map<String, dynamic> item) {
-    return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      elevation: 1,
-      child: Column(
-        crossAxisAlignment:
-            CrossAxisAlignment.start, // <- added to align all text to left
-        children: [
-          // image
-          ClipRRect(
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
-            child: AspectRatio(
-              aspectRatio: 16 / 9,
-              child: Image.asset(
-                'assets/Mohamed_Farouk.jpg',
-                fit: BoxFit.cover,
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const QuizzesScreen()),
+        );
+      },
+      child: Card(
+        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        elevation: 1,
+        child: Column(
+          crossAxisAlignment:
+              CrossAxisAlignment.start, // <- added to align all text to left
+          children: [
+            // image
+            ClipRRect(
+              borderRadius: const BorderRadius.vertical(
+                top: Radius.circular(12),
+              ),
+              child: AspectRatio(
+                aspectRatio: 16 / 9,
+                child: Image.asset(
+                  'assets/Mohamed_Farouk.jpg',
+                  fit: BoxFit.cover,
+                ),
               ),
             ),
-          ),
-          // divider line
-          Container(height: 1, color: Colors.grey.shade200),
-          // content
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-            child: Column(
-              crossAxisAlignment:
-                  CrossAxisAlignment
-                      .start, // ensure inner column is left-aligned
-              children: [
-                Text(
-                  item['className'] ?? '',
-                  textAlign: TextAlign.left,
-                  style: const TextStyle(fontSize: 12, color: Colors.black),
-                ),
-                const SizedBox(height: 6),
-                Text(
-                  item['instructorName'] ?? '',
-                  textAlign: TextAlign.left,
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w700,
+            // divider line
+            Container(height: 1, color: Colors.grey.shade200),
+            // content
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+              child: Column(
+                crossAxisAlignment:
+                    CrossAxisAlignment
+                        .start, // ensure inner column is left-aligned
+                children: [
+                  Text(
+                    item['className'] ?? '',
+                    textAlign: TextAlign.left,
+                    style: const TextStyle(fontSize: 12, color: Colors.black),
                   ),
-                ),
-                const SizedBox(height: 6),
-                Text(
-                  item['classDescription'] ?? '',
-                  textAlign: TextAlign.left,
-                  style: const TextStyle(fontSize: 13, color: Colors.black54),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ],
+                  const SizedBox(height: 6),
+                  Text(
+                    item['instructorName'] ?? '',
+                    textAlign: TextAlign.left,
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    item['classDescription'] ?? '',
+                    textAlign: TextAlign.left,
+                    style: const TextStyle(fontSize: 13, color: Colors.black54),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

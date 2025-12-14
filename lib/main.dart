@@ -28,13 +28,16 @@ class MyApp extends StatelessWidget {
       home: SignUpPage(),
       routes: {
         '/signin': (context) => const SigninScreen(),
-        '/join_eduverse': (context) => const JoinEduverse(),
+        '/join_eduverse': (context) => JoinEduverse(),
         '/view_courses': (context) => const EduversesPage(),
         '/signup': (context) => const SignUpPage(),
       },
     );
   }
 }
+
+
+
 
 
 /*
