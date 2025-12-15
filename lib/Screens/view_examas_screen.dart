@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'quiz_screen.dart';
 
 class QuizzesScreen extends StatefulWidget {
   const QuizzesScreen({super.key});
@@ -180,12 +181,19 @@ class _QuizCard extends StatelessWidget {
                         ),
                       ],
                     ),
+
                     if (item.status == QuizStatus.start) ...[
                       const SizedBox(height: 10),
                       SizedBox(
                         height: 36,
                         child: ElevatedButton.icon(
                           onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => EnglishExamScreen(),
+                              ),
+                            );
                             // Start quiz action
                           },
                           icon: const Icon(Icons.play_arrow),
@@ -311,6 +319,3 @@ extension QuizStatusX on QuizStatus {
     }
   }
 }
-
-//  Color of Background :
-// Color of Icon : scheme.primary.withOpacity(0.12)

@@ -5,7 +5,8 @@ import 'package:ui/Screens/signUp_screen.dart';
 import 'package:ui/Screens/signIn_screen.dart';
 import 'package:ui/Screens/view_courses_screen.dart';
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
   // runApp(DevicePreview(builder: (context) => const MyApp()));
   runApp(const MyApp());
 }

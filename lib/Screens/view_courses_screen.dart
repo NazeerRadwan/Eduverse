@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../services/classes_service.dart';
-import 'view_exam_screen.dart';
+import 'view_examas_screen.dart';
 
 class EduversesPage extends StatefulWidget {
   const EduversesPage({super.key});
