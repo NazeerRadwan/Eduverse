@@ -19,23 +19,26 @@ class CoursesApiService {
         throw Exception('No authentication token found. Please login first.');
       }
 
-      final response = await http.get(
-        Uri.parse('$baseUrl/Courses'),
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer $token', // Include token in header
-        },
-      ).timeout(
-        const Duration(seconds: 30),
-        onTimeout: () => throw Exception('Request timeout'),
-      );
+      final response = await http
+          .get(
+            Uri.parse('$baseUrl/Courses'),
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': 'Bearer $token', // Include token in header
+            },
+          )
+          .timeout(
+            const Duration(seconds: 30),
+            onTimeout: () => throw Exception('Request timeout'),
+          );
 
       if (response.statusCode == 200) {
         final jsonResponse = jsonDecode(response.body);
         // Parse and return courses
-        List<Course> courses = (jsonResponse['data'] as List)
-            .map((c) => Course.fromJson(c))
-            .toList();
+        List<Course> courses =
+            (jsonResponse['data'] as List)
+                .map((c) => Course.fromJson(c))
+                .toList();
         return courses;
       } else if (response.statusCode == 401) {
         // Token expired or invalid
@@ -57,13 +60,15 @@ class CoursesApiService {
         throw Exception('Not authenticated');
       }
 
-      final response = await http.get(
-        Uri.parse('$baseUrl/Courses/$courseId'),
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer $token',
-        },
-      ).timeout(const Duration(seconds: 30));
+      final response = await http
+          .get(
+            Uri.parse('$baseUrl/Courses/$courseId'),
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': 'Bearer $token',
+            },
+          )
+          .timeout(const Duration(seconds: 30));
 
       if (response.statusCode == 200) {
         return CourseDetail.fromJson(jsonDecode(response.body));
@@ -84,14 +89,16 @@ class CoursesApiService {
       final token = await AuthService.getToken();
       if (token == null) throw Exception('Not authenticated');
 
-      final response = await http.post(
-        Uri.parse('$baseUrl/Courses/$courseId/Enroll'),
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer $token',
-        },
-        body: jsonEncode({'courseId': courseId}),
-      ).timeout(const Duration(seconds: 30));
+      final response = await http
+          .post(
+            Uri.parse('$baseUrl/Courses/$courseId/Enroll'),
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': 'Bearer $token',
+            },
+            body: jsonEncode({'courseId': courseId}),
+          )
+          .timeout(const Duration(seconds: 30));
 
       if (response.statusCode == 200) {
         // Success

@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'quiz_screen.dart';
+import '../services/exam_service.dart';
 
 class QuizzesScreen extends StatefulWidget {
-  const QuizzesScreen({super.key});
+  final int classId;
+  const QuizzesScreen({super.key, this.classId = 1});
 
   @override
   State<QuizzesScreen> createState() => _QuizzesScreenState();
@@ -10,45 +12,61 @@ class QuizzesScreen extends StatefulWidget {
 
 class _QuizzesScreenState extends State<QuizzesScreen> {
   int _currentIndex = 2;
+  List<QuizItem> quizzes = [];
+  bool _isLoading = true;
+  String? _errorMessage;
 
-  final List<QuizItem> quizzes = [
-    QuizItem(
-      title: 'Quiz 9',
-      subtitle: 'Present continuous',
-      status: QuizStatus.notStarted,
-      time: '8:25 am',
-    ),
-    QuizItem(
-      title: 'Quiz 1',
-      subtitle: 'Present continuous',
-      status: QuizStatus.start,
-      time: '8:25 - 9:45',
-    ),
-    QuizItem(
-      title: 'Quiz 1',
-      subtitle: 'Present continuous',
-      status: QuizStatus.endedWithLabelEnded,
-      time: '8:25 - 9:45',
-    ),
-    QuizItem(
-      title: 'Quiz 1',
-      subtitle: 'Present continuous',
-      status: QuizStatus.endedWithLabelLeft,
-      time: '8:25 - 9:45',
-    ),
-    QuizItem(
-      title: 'Quiz 1',
-      subtitle: 'Present continuous',
-      status: QuizStatus.ended,
-      time: '8:25 - 9:45',
-    ),
-    QuizItem(
-      title: 'Quiz 1',
-      subtitle: 'Present continuous',
-      status: QuizStatus.ended,
-      time: '8:25 - 9:45',
-    ),
-  ];
+  @override
+  void initState() {
+    super.initState();
+    _loadExams();
+  }
+
+  Future<void> _loadExams() async {
+    try {
+      final response = await ExamService.getExamStatus(classId: widget.classId);
+
+      if (response['success'] == true) {
+        final List<dynamic> data = response['data'] ?? [];
+        setState(() {
+          quizzes =
+              data.map((exam) {
+                // Map API response to QuizItem
+                final String status = exam['status'] ?? 'NotStarted';
+                QuizStatus quizStatus = QuizStatus.notStarted;
+
+                if (status == 'NotStarted') {
+                  quizStatus = QuizStatus.start;
+                } else if (status == 'Completed') {
+                  quizStatus = QuizStatus.endedWithLabelEnded;
+                }
+
+                return QuizItem(
+                  examId: exam['examId'],
+                  classId: exam['classId'],
+                  title: exam['examId'].toString(),
+                  subtitle: exam['examTitle'] ?? 'Exam',
+                  status: quizStatus,
+                  time: '${exam['durationMinutes']} min',
+                  canStart: exam['canStart'] ?? false,
+                );
+              }).toList();
+          _isLoading = false;
+          _errorMessage = null;
+        });
+      } else {
+        setState(() {
+          _isLoading = false;
+          _errorMessage = response['message'] ?? 'Failed to load exams';
+        });
+      }
+    } catch (e) {
+      setState(() {
+        _isLoading = false;
+        _errorMessage = 'Error loading exams: $e';
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -68,15 +86,44 @@ class _QuizzesScreenState extends State<QuizzesScreen> {
         ),
         centerTitle: false,
       ),
-      body: ListView.separated(
-        padding: const EdgeInsets.all(16),
-        itemCount: quizzes.length,
-        separatorBuilder: (_, __) => const SizedBox(height: 12),
-        itemBuilder: (context, index) {
-          final item = quizzes[index];
-          return _QuizCard(item: item);
-        },
-      ),
+      body:
+          _isLoading
+              ? const Center(child: CircularProgressIndicator())
+              : _errorMessage != null
+              ? Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(
+                      Icons.error_outline,
+                      size: 48,
+                      color: Colors.red,
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      _errorMessage!,
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(color: Colors.red),
+                    ),
+                    const SizedBox(height: 24),
+                    ElevatedButton(
+                      onPressed: _loadExams,
+                      child: const Text('Retry'),
+                    ),
+                  ],
+                ),
+              )
+              : quizzes.isEmpty
+              ? const Center(child: Text('No exams available'))
+              : ListView.separated(
+                padding: const EdgeInsets.all(16),
+                itemCount: quizzes.length,
+                separatorBuilder: (_, __) => const SizedBox(height: 12),
+                itemBuilder: (context, index) {
+                  final item = quizzes[index];
+                  return _QuizCard(item: item, onStartExam: _handleStartExam);
+                },
+              ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
         onTap: (i) {
@@ -100,12 +147,73 @@ class _QuizzesScreenState extends State<QuizzesScreen> {
       ),
     );
   }
+
+  Future<void> _handleStartExam(QuizItem item) async {
+    if (!item.canStart) return;
+
+    // Show loading dialog
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder:
+          (context) => const Dialog(
+            child: Padding(
+              padding: EdgeInsets.all(20.0),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  CircularProgressIndicator(),
+                  SizedBox(width: 20),
+                  Text('Starting exam...'),
+                ],
+              ),
+            ),
+          ),
+    );
+
+    try {
+      final response = await ExamService.startExam(
+        examId: item.examId,
+        classId: item.classId,
+      );
+
+      if (mounted) {
+        Navigator.pop(context); // Close loading dialog
+
+        if (response['success'] == true) {
+          // Navigate to exam screen
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const EnglishExamScreen()),
+          );
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(response['message'] ?? 'Failed to start exam'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        Navigator.pop(context); // Close loading dialog
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error: ${e.toString()}'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
 }
 
 class _QuizCard extends StatelessWidget {
-  const _QuizCard({required this.item});
+  const _QuizCard({required this.item, required this.onStartExam});
 
   final QuizItem item;
+  final Function(QuizItem) onStartExam;
 
   @override
   Widget build(BuildContext context) {
@@ -187,15 +295,7 @@ class _QuizCard extends StatelessWidget {
                       SizedBox(
                         height: 36,
                         child: ElevatedButton.icon(
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) => EnglishExamScreen(),
-                              ),
-                            );
-                            // Start quiz action
-                          },
+                          onPressed: () => onStartExam(item),
                           icon: const Icon(Icons.play_arrow),
                           label: const Text('Start'),
                           style: ElevatedButton.styleFrom(
@@ -246,16 +346,22 @@ class _StatusChip extends StatelessWidget {
 }
 
 class QuizItem {
+  final int examId;
+  final int classId;
   final String title;
   final String subtitle;
   final QuizStatus status;
   final String time;
+  final bool canStart;
 
   QuizItem({
+    required this.examId,
+    required this.classId,
     required this.title,
     required this.subtitle,
     required this.status,
     required this.time,
+    this.canStart = false,
   });
 }
 

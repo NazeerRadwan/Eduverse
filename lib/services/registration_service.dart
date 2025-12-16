@@ -31,10 +31,7 @@ class RegistrationService {
         'role': role,
       };
 
-      final headers = {
-        'Content-Type': 'application/json',
-        'Accept': '*/*',
-      };
+      final headers = {'Content-Type': 'application/json', 'Accept': '*/*'};
 
       // Debug: print headers and payload being sent
       print('=== Registration Request ===');

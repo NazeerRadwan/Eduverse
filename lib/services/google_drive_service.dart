@@ -33,7 +33,10 @@ class GoogleDriveService {
         "type": "service_account",
       });
       final scopes = [drive.DriveApi.driveFileScope, drive.DriveApi.driveScope];
-      final client = await auth.clientViaServiceAccount(accountCredentials, scopes);
+      final client = await auth.clientViaServiceAccount(
+        accountCredentials,
+        scopes,
+      );
       return drive.DriveApi(client);
     } catch (e, stackTrace) {
       print('خطأ في المصادقة (service account): $e\nStackTrace: $stackTrace');
@@ -54,9 +57,10 @@ class GoogleDriveService {
       if (serviceDrive != null) {
         print('Using service account for Drive upload');
 
-        final fileMetadata = drive.File()
-          ..name = 'profile_${DateTime.now().millisecondsSinceEpoch}.jpg'
-          ..mimeType = 'image/jpeg';
+        final fileMetadata =
+            drive.File()
+              ..name = 'profile_${DateTime.now().millisecondsSinceEpoch}.jpg'
+              ..mimeType = 'image/jpeg';
 
         final media = drive.Media(imageFile.openRead(), imageFile.lengthSync());
 
@@ -80,7 +84,8 @@ class GoogleDriveService {
           print('Permission error (non-fatal): $e');
         }
 
-        final fileLink = 'https://drive.google.com/uc?export=view&id=${uploaded.id}';
+        final fileLink =
+            'https://drive.google.com/uc?export=view&id=${uploaded.id}';
         print('Service account public link: $fileLink');
         return fileLink;
       }
@@ -109,9 +114,10 @@ class GoogleDriveService {
       final driveApi = drive.DriveApi(authClient);
 
       // Create file metadata
-      final fileMetadata = drive.File()
-        ..name = 'profile_${DateTime.now().millisecondsSinceEpoch}.jpg'
-        ..mimeType = 'image/jpeg';
+      final fileMetadata =
+          drive.File()
+            ..name = 'profile_${DateTime.now().millisecondsSinceEpoch}.jpg'
+            ..mimeType = 'image/jpeg';
 
       final media = drive.Media(imageFile.openRead(), imageFile.lengthSync());
 
@@ -135,7 +141,8 @@ class GoogleDriveService {
         print('Permission error (non-fatal): $e');
       }
 
-      final fileLink = 'https://drive.google.com/uc?export=view&id=${uploadedFile.id}';
+      final fileLink =
+          'https://drive.google.com/uc?export=view&id=${uploadedFile.id}';
       print('Public link generated: $fileLink');
       return fileLink;
     } catch (e) {

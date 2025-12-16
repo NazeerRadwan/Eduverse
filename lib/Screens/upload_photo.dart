@@ -33,7 +33,7 @@ class _UploadPhotoScreenState extends State<UploadPhotoScreen> {
 
   void _handleSelectPhoto() async {
     setState(() => _errorMessage = null);
-    
+
     try {
       final image = await GoogleDriveService.pickImageFromDevice();
       if (image != null) {
@@ -73,8 +73,9 @@ class _UploadPhotoScreenState extends State<UploadPhotoScreen> {
 
     try {
       // Upload image to Google Drive
-      final driveLink =
-          await GoogleDriveService.uploadImageToGoogleDrive(_selectedImage!);
+      final driveLink = await GoogleDriveService.uploadImageToGoogleDrive(
+        _selectedImage!,
+      );
 
       if (driveLink == null) {
         throw Exception('Failed to upload image to Google Drive');
@@ -122,7 +123,7 @@ class _UploadPhotoScreenState extends State<UploadPhotoScreen> {
       } else {
         final msg = result['message'];
         String errorMsg = 'Registration failed';
-        
+
         if (msg is String) {
           errorMsg = msg;
         } else if (msg is Map) {
@@ -130,7 +131,7 @@ class _UploadPhotoScreenState extends State<UploadPhotoScreen> {
         } else if (msg != null) {
           errorMsg = msg.toString();
         }
-        
+
         setState(() => _errorMessage = errorMsg);
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -223,7 +224,10 @@ class _UploadPhotoScreenState extends State<UploadPhotoScreen> {
                     border: Border.all(color: const Color(0xFFE6E9EC)),
                   ),
                   child: IconButton(
-                    icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 18),
+                    icon: const Icon(
+                      Icons.arrow_back_ios_new_rounded,
+                      size: 18,
+                    ),
                     onPressed: () => Navigator.maybePop(context),
                   ),
                 ),
@@ -259,10 +263,7 @@ class _UploadPhotoScreenState extends State<UploadPhotoScreen> {
                     _selectedImage != null
                         ? ClipRRect(
                           borderRadius: BorderRadius.circular(14),
-                          child: Image.file(
-                            _selectedImage!,
-                            fit: BoxFit.cover,
-                          ),
+                          child: Image.file(_selectedImage!, fit: BoxFit.cover),
                         )
                         : Column(
                           mainAxisAlignment: MainAxisAlignment.center,
