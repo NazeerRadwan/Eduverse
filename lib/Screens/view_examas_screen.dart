@@ -51,6 +51,8 @@ class _QuizzesScreenState extends State<QuizzesScreen> {
                   canStart: exam['canStart'] ?? false,
                 );
               }).toList();
+          // Sort exams in descending order (newest first)
+          quizzes.sort((a, b) => b.examId.compareTo(a.examId));
           _isLoading = false;
           _errorMessage = null;
         });
@@ -254,7 +256,7 @@ class _QuizCard extends StatelessWidget {
                       children: [
                         Expanded(
                           child: Text(
-                            item.title,
+                            "Quiz ${item.title}",
                             style: Theme.of(context).textTheme.titleMedium
                                 ?.copyWith(fontWeight: FontWeight.w600),
                           ),
