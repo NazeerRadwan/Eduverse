@@ -186,7 +186,9 @@ class _QuizzesScreenState extends State<QuizzesScreen> {
           // Navigate to exam screen
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (_) => const EnglishExamScreen()),
+            MaterialPageRoute(
+              builder: (_) => EnglishExamScreen(examId: item.examId),
+            ),
           );
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
